@@ -1,0 +1,26 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/firefly/chh_ws/devel/include/**",
+        "/home/firefly/catkin_ws/devel/include/**",
+        "/opt/ros/melodic/include/**",
+        "/home/firefly/chh_ws/src/cdpr_uav_ddrive/include/**",
+        "/home/firefly/chh_ws/src/IEEE_TAI_DDR/ddr_control/include/**",
+        "/home/firefly/catkin_ws/src/mavros/libmavconn/include/**",
+        "/home/firefly/catkin_ws/src/mavros/mavros/include/**",
+        "/home/firefly/catkin_ws/src/mavros/mavros_msgs/include/**",
+        "/home/firefly/chh_ws/src/rcdpr/include/**",
+        "/home/firefly/catkin_ws/src/mavros/test_mavros/include/**",
+        "/home/firefly/chh_ws/src/ugv_uav/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}

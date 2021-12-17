@@ -7,6 +7,7 @@
 import numpy as np
 import math
 from math import *
+import tf
 class Rotate:
     def __init__(self):
         pass
@@ -20,7 +21,7 @@ class Rotate:
         Y = math.asin(2 * (w * y - x * z))
         Z = math.atan2(2 * (w * z + x * y), 1 - 2 * (z * z + y * y))
         # 使用 tf 库
-        import tf
+        
         (X, Y, Z) = tf.transformations.euler_from_quaternion([x, y, z, w])
         return np.array([X, Y, Z])
 
@@ -33,7 +34,7 @@ class Rotate:
         y=sin(pitch/2)*cos(yaw/2)*cos(roll/2)+cos(pitch/2)*sin(yaw/2)*sin(roll/2)
         z=cos(pitch/2)*sin(yaw/2)*cos(roll/2)-sin(pitch/2)*cos(yaw/2)*sin(roll/2)
         w=cos(pitch/2)*cos(yaw/2)*cos(roll/2)-sin(pitch/2)*sin(yaw/2)*sin(roll/2)
-        import tf
+        # import tf
         (x, y, z, w) = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
         return np.array([x, y, z, w])
 

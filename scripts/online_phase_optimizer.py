@@ -152,6 +152,7 @@ class CDPR(gym.Env):
                 # print('theat',theta)
                 self.dist_x = radius * np.cos(np.pi - theta) + c0[0]
                 self.dist_y = radius * np.sin(np.pi - theta) + c0[1]
+                
                 # '''2. 优化器迭代一次得到uav下一步位置'''
                 x_ugv = np.array([2.5, 1.45, 0, -2.5, 1.45, 0, 0, -2.9, 0])
                 # cables_one_side, cable_oth_side, m, d_min, mu_l, mu_t, mu_r, mu_d, mu_a, rotation_center, target_length_list, t_min, t_max = args  # 21

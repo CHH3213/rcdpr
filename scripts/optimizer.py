@@ -55,9 +55,9 @@ def minimizeForce(allArgs):
     res = minimize(fun(allArgs), x0, method='SLSQP', constraints=cons)
     v = res.x  # 返回最小化后的变量
     result = res.fun  # 返回最小化后的结果
-    print('result', result)
+    # print('result', result)
     # print(res.x)
-    print(res.success)
+    # print(res.success)
     return v, result
 
 

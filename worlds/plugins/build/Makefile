@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named rcdpr_plugin_fp
+
+# Build rule for target.
+rcdpr_plugin_fp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 rcdpr_plugin_fp
+.PHONY : rcdpr_plugin_fp
+
+# fast build rule for target.
+rcdpr_plugin_fp/fast:
+	$(MAKE) -f CMakeFiles/rcdpr_plugin_fp.dir/build.make CMakeFiles/rcdpr_plugin_fp.dir/build
+.PHONY : rcdpr_plugin_fp/fast
+
+#=============================================================================
 # Target rules for targets named roscpp_generate_messages_py
 
 # Build rule for target.
@@ -345,6 +358,33 @@ rcdpr_plugin.cc.s:
 	$(MAKE) -f CMakeFiles/rcdpr_plugin.dir/build.make CMakeFiles/rcdpr_plugin.dir/rcdpr_plugin.cc.s
 .PHONY : rcdpr_plugin.cc.s
 
+rcdpr_plugin_fp.o: rcdpr_plugin_fp.cc.o
+
+.PHONY : rcdpr_plugin_fp.o
+
+# target to build an object file
+rcdpr_plugin_fp.cc.o:
+	$(MAKE) -f CMakeFiles/rcdpr_plugin_fp.dir/build.make CMakeFiles/rcdpr_plugin_fp.dir/rcdpr_plugin_fp.cc.o
+.PHONY : rcdpr_plugin_fp.cc.o
+
+rcdpr_plugin_fp.i: rcdpr_plugin_fp.cc.i
+
+.PHONY : rcdpr_plugin_fp.i
+
+# target to preprocess a source file
+rcdpr_plugin_fp.cc.i:
+	$(MAKE) -f CMakeFiles/rcdpr_plugin_fp.dir/build.make CMakeFiles/rcdpr_plugin_fp.dir/rcdpr_plugin_fp.cc.i
+.PHONY : rcdpr_plugin_fp.cc.i
+
+rcdpr_plugin_fp.s: rcdpr_plugin_fp.cc.s
+
+.PHONY : rcdpr_plugin_fp.s
+
+# target to generate assembly for a file
+rcdpr_plugin_fp.cc.s:
+	$(MAKE) -f CMakeFiles/rcdpr_plugin_fp.dir/build.make CMakeFiles/rcdpr_plugin_fp.dir/rcdpr_plugin_fp.cc.s
+.PHONY : rcdpr_plugin_fp.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -352,6 +392,7 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
+	@echo "... rcdpr_plugin_fp"
 	@echo "... roscpp_generate_messages_py"
 	@echo "... roscpp_generate_messages_eus"
 	@echo "... edit_cache"
@@ -372,6 +413,9 @@ help:
 	@echo "... rcdpr_plugin.o"
 	@echo "... rcdpr_plugin.i"
 	@echo "... rcdpr_plugin.s"
+	@echo "... rcdpr_plugin_fp.o"
+	@echo "... rcdpr_plugin_fp.i"
+	@echo "... rcdpr_plugin_fp.s"
 .PHONY : help
 
 

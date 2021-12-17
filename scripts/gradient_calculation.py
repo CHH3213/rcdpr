@@ -36,10 +36,14 @@ class Net(nn.Module):
 class Gradient_calculation:
     def __init__(self):
         # TODO: Net的参数设置
-        self.Net = Net(14, 512, 512,256, 1).to(device)
-        self.alpha = 0.004  # 0.2半径，300steps  2*pi/300*0.2
+        self.Net = Net(11, 256,256,256, 1).to(device)
+        self.alpha = 0.05# 0.2半径，300steps  2*pi/300*0.2
+        print('======load model=========')
         self.Net.load_state_dict(torch.load(
-            '/home/firefly/chh_ws/src/plan_cdpr/scripts/model/model_14dim/512512256-100000-11-8.pt'))
+            'figure/g/17/torch_fit_value2.pt'))
+        # self.Net.load_state_dict(torch.load(
+        #     '/home/firefly/cable_fit/save/model/torch_fit_value2.pt'))
+        
 
     def torch_nn(self, x):
         """
@@ -54,12 +58,31 @@ class Gradient_calculation:
         grads_1 = x_data.grad  # 测试梯度
         grads = grads_1.tolist()
         grads_temp = grads[0:8]
-        if np.linalg.norm(grads_temp)>1:
-            grads_temp = grads_temp/np.linalg.norm(grads_temp)  # 归一化
+        # if np.linalg.norm(grads_temp)>1:
+        print('y', y_.item())
+        # print('grads_temp', grads_temp)
+        # print('np.linalg.norm(grads_temp)', np.linalg.norm(grads_temp))
+        if np.linalg.norm(grads_temp) != 0:
+            grads_temp = grads_temp/np.linalg.norm(grads_temp)  # 归一化 
+        # print('grads_temp', grads_temp)
+        # print('grads_temp', np.array(grads_temp))
 
 
         x_now = x_data.tolist()
         x_next = np.array(x_now[0:8])-np.array(grads_temp)*self.alpha
-        # print('grad ', np.array(grads_1.tolist()))
-        # x_next = x_data.tolist()
+        # print(x_next)
+
+        # x_test = np.concatenate((x_next, x_now[8:]), axis=0)
+        # x_test = torch.tensor(x_test, device=device, dtype=torch.float32)
+        # y_test = self.Net(x_test)
+        # print('real x:{}', x)
+        # print('x: ', x_test)
+        # print('y:{}\ty_next:{}'.format(y_.item(), y_test.item()))
+
+        # if y_.item() > 2000:
+        #     x_next = None
+
+        # if y_test.item() > y_.item():
+        #     return np.array(x_now[0:8])
+            
         return x_next

@@ -57,14 +57,15 @@ def jacobi(points_base=None, point_end_effector=None, pose_0=None, rotation_cent
     # quaternion rotation of a vector
     for i in range(0, 7, 1):
         # TODO:是否有问题？导致算出的f负的
-        vector = np.hstack([point_end_effector[i], 0])  # 将B点转换为四元数
-        # 通过四元数的旋转变换求得旋转后B’的四元数位置（相对于末端执行器坐标系）
-        # print('vector', vector)
-        rotated_vector = r.rotated_vector(pose_0,vector)
-        # print('rotated_vector', rotated_vector)  # 经检查没问题
-        # 将B’的四元数位置变成3维位置并进行坐标补偿将它变成相对于基坐标系的位置
-        point_end_effector_baseframe[i] = np.delete(rotated_vector, 3) + rotation_center
+        # vector = np.hstack([point_end_effector[i], 0])  # 将B点转换为四元数
+        # # 通过四元数的旋转变换求得旋转后B’的四元数位置（相对于末端执行器坐标系）
+        # # print('vector', vector)
+        # rotated_vector = r.rotated_vector(pose_0,vector)
+        # # print('rotated_vector', rotated_vector)  # 经检查没问题
+        # # 将B’的四元数位置变成3维位置并进行坐标补偿将它变成相对于基坐标系的位置
+        # point_end_effector_baseframe[i] = np.delete(rotated_vector, 3) + rotation_center
         # print('point_end_effector_baseframe',point_end_effector_baseframe[i])
+        point_end_effector_baseframe[i] =rotation_center
     b = point_end_effector_baseframe - rotation_center  # 相对机体坐标系
     # print('b', b)
     # print(np.shape(b))
@@ -89,6 +90,7 @@ def jacobi(points_base=None, point_end_effector=None, pose_0=None, rotation_cent
     # print(np.shape(u))
     # print(np.shape(J))  # 6*7
     J = -J.T
+    J = J[:,0:3]
     # print('J', J.T)
     # print(np.shape(J))
     # 奇异值分解并进行基底变换 FIXME: 和matlab的输出不一样
@@ -100,7 +102,9 @@ def jacobi(points_base=None, point_end_effector=None, pose_0=None, rotation_cent
     wu = np.einsum('ij,j->i', U.T, w)
     fvabr = wu / Sbar  # 特解
     Vinv = V.T
-    f1 = np.einsum('ij,j->i', Vinv[:, 0:6], fvabr)  # 特解回到原来基底
+    # print('fvabr: {}\tVinv:{}'.format(fvabr, Vinv))
+    print(np.shape(Vinv))
+    f1 = np.einsum('ij,j->i', Vinv[:, 0:3], fvabr)  # 特解回到原来基底
     # print(f1)
 
     kmin = -np.inf
@@ -174,7 +178,7 @@ if __name__ == '__main__':
     # print(np.shape(point_end_effector))
     pose_0 = [0, 0, 0, 1]
     rotation_center = [0, 0, 0]
-    w = [0, 0, 1, 0, 0, 0]
+    w = [0, 0, 1]
     j, f, _ = jacobi(points_base, point_end_effector, pose_0, rotation_center, w)
     torque(j, f)
     # print('j',j)

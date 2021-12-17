@@ -21,4 +21,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(rcdpr_plugin SHARED rcdpr_plugin.cc)
 target_link_libraries(rcdpr_plugin ${GAZEBO_libraries} ${roscpp_LIBRARIES})
 
+# Build our plugin
+add_library(rcdpr_plugin_fp SHARED rcdpr_plugin_fp.cc)
+target_link_libraries(rcdpr_plugin_fp ${GAZEBO_libraries} ${roscpp_LIBRARIES})
+
 

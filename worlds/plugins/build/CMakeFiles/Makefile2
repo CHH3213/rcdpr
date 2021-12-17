@@ -60,6 +60,43 @@ CMAKE_SOURCE_DIR = /home/firefly/chh_ws/src/rcdpr/worlds/plugins
 CMAKE_BINARY_DIR = /home/firefly/chh_ws/src/rcdpr/worlds/plugins/build
 
 #=============================================================================
+# Target rules for target CMakeFiles/rcdpr_plugin_fp.dir
+
+# All Build rule for target.
+CMakeFiles/rcdpr_plugin_fp.dir/all:
+	$(MAKE) -f CMakeFiles/rcdpr_plugin_fp.dir/build.make CMakeFiles/rcdpr_plugin_fp.dir/depend
+	$(MAKE) -f CMakeFiles/rcdpr_plugin_fp.dir/build.make CMakeFiles/rcdpr_plugin_fp.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/firefly/chh_ws/src/rcdpr/worlds/plugins/build/CMakeFiles --progress-num=3,4 "Built target rcdpr_plugin_fp"
+.PHONY : CMakeFiles/rcdpr_plugin_fp.dir/all
+
+# Include target in all.
+all: CMakeFiles/rcdpr_plugin_fp.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/rcdpr_plugin_fp.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/firefly/chh_ws/src/rcdpr/worlds/plugins/build/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/rcdpr_plugin_fp.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/firefly/chh_ws/src/rcdpr/worlds/plugins/build/CMakeFiles 0
+.PHONY : CMakeFiles/rcdpr_plugin_fp.dir/rule
+
+# Convenience name for target.
+rcdpr_plugin_fp: CMakeFiles/rcdpr_plugin_fp.dir/rule
+
+.PHONY : rcdpr_plugin_fp
+
+# clean rule for target.
+CMakeFiles/rcdpr_plugin_fp.dir/clean:
+	$(MAKE) -f CMakeFiles/rcdpr_plugin_fp.dir/build.make CMakeFiles/rcdpr_plugin_fp.dir/clean
+.PHONY : CMakeFiles/rcdpr_plugin_fp.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/rcdpr_plugin_fp.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/roscpp_generate_messages_py.dir
 
 # All Build rule for target.

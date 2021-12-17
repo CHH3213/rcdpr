@@ -45,13 +45,9 @@ def null_space(A, rcond=None):
 
 
 if __name__ == '__main__':
-    A = np.matrix([[2, 3, 5], [-4, 2, 3]])
+    A = np.random.random((3,7))
     print('null\n', null(A))  # <class 'numpy.ndarray'>
     print('nullspace\n', nullspace(A))  # <class 'numpy.matrix'>
     print('null_space\n', null_space(A))  # <class 'numpy.matrix'>
     print('qr_null\n', qr_null(A))  # <class 'numpy.ndarray'>
-    # print(A*nullspace(A))
-    a = np.matrix([1, 2, 3])
-    # print(np.shape(a.T)).
-    b = [[1,2,3],[2,3,4]]
-    print(np.shape(b))
+

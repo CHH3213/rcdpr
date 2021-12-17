@@ -1,0 +1,15 @@
+# *.mat
+# Python:
+*.py[cod]
+*.egg
+*.egg-info
+*.bin
+*.parm
+*.tlog
+*.raw
+*.out
+# *.pt
+*.h5
+logs/
+terrain/
+

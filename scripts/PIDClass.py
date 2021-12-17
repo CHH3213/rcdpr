@@ -3,10 +3,10 @@
 """
 位置式
 """
-
+import numpy as np
 
 class PID:
-    def __init__(self, k = [1.,0.,0.], target=1.0, upper=1.0, lower=-1.0) -> None:
+    def __init__(self, k = [1.,0.,0.], target=1.0, upper=1.0, lower=-1.0) :
         self.kp, self.ki, self.kd = k
 
         self.e = 0  # error
@@ -38,6 +38,7 @@ class PID:
 
         self.pre_e = self.e
         self.sum_e += self.e
+        # print(self.sum_e)
         return u
     
     def reset(self):
@@ -49,6 +50,10 @@ class PID:
         self.pre_e = 0
         self.sum_e = 0
         # self.target = 0
+    
+    def set_sum_e(self, sum_e):
+        self.sum_e = sum_e
 
 if __name__ == '__main__':
-    pass
+    for i in range(0,7,1):
+        print(i)

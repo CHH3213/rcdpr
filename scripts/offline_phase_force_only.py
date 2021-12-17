@@ -34,7 +34,7 @@ import time
 class CDPR(gym.Env):
     def __init__(self):
         # # 物理属性
-        self.payload_gravity = 1.0
+        self.payload_gravity = 0.98
         self.drone_gravity = 18.88
         self.dt = 0.1  ## 仿真频率
         self.save_data_dir = "../scripts/data"
@@ -57,7 +57,7 @@ class CDPR(gym.Env):
         self.gazebo_reset = Gazebo_reset()
         # self.Gradient = Gradient_calculation()
         self.Rot = Rotate()
-        self.J = Jacobia()
+        self.J = Jacobia() 
         # TODO:参数的具体定义
         self.m = self.payload_gravity / 9.8
         self.d_min = 0.1
@@ -92,6 +92,7 @@ class CDPR(gym.Env):
         self.t = []
         self.time_step = []
         self.platform_pos = []
+        self.drone_posi = [[],[],[],[]]
 
     def run(self):
         '''
@@ -107,20 +108,20 @@ class CDPR(gym.Env):
         # logger and UAV
         multiarray0 = Float32MultiArray()
 
-        hz = 5
+        hz = 10
         r = rospy.Rate(hz)
         count_draw = 1
         # 初始平台位置
         self.dist_x = 0
         self.dist_y = 0
-        self.dist_z = 3.5
+        self.dist_z = 4
         dist_x = 0  # 小车误差修正
         dist_y = 0
         # 圆形轨迹圆心和半径长
-        radius = 1
-        c0 = [1, 0]
+        radius = 0.2
+        c0 = [0.2, 0]
         theta = 0
-        total_steps = 2000
+        total_steps = 1000
         '''
         无人机解锁并起飞
         '''
@@ -137,18 +138,22 @@ class CDPR(gym.Env):
         self.Drone2.takeoff(8)
         self.Drone3.takeoff(8)
         self.Drone4.takeoff(8)
-        rospy.sleep(5)
-        self.Drone1.goto_xyz(0.87, 1.5, 7.5)
-        self.Drone2.goto_xyz(-1.74, 0, 7.5)
-        self.Drone3.goto_xyz(0.87, -1.5, 7.5)
-        self.Drone4.goto_xyz(2, 0, 7.5)
+        # rospy.sleep(5)
+        self.Drone1.goto_xyz(0.87, 1.5, 8.)
+        self.Drone2.goto_xyz(-1.74, 0, 8.)
+        self.Drone3.goto_xyz(0.87, -1.5, 8.)
+        self.Drone4.goto_xyz(2, 0, 8.)
         rospy.sleep(6)
         self.count = 0
         # TODO:payload初始化
-        self.gazebo_reset.set_payload_state()  # 将payload初始化到(0,0,3)
+        self.gazebo_reset.set_payload_state()  # 将payload初始化到(0,0,4) 
+        # TODO: pid需要在开始前定义
+        pid = apmPID(target=[self.dist_x, self.dist_y, self.dist_z])
+        time.sleep(0.015) # TODO: 设置点后的几步并不能获取到正确的数据，干扰pid
         while not rospy.is_shutdown():
             # 画圆形轨迹 (x-x0)^2+(y-y0)^2=r^2  <==> 令圆心为（2，0），半径为2，==》x = 2cos(pi-theta)+2,  y=sin(pi-theta),在1000步时刚好画完一个圆
             start = time.time()
+            print('step: ', count_draw)
             '''=====================轨迹=========================='''
             if count_draw > 500:
                 theta += 2 * np.pi / (total_steps - 500)
@@ -156,11 +161,11 @@ class CDPR(gym.Env):
                 temp = [dist_x, dist_y]
                 self.dist_x = radius * np.cos(np.pi - theta) + c0[0]
                 self.dist_y = radius * np.sin(np.pi - theta) + c0[1]
-                dist_x = 1.1 * (radius * np.cos(np.pi - theta) + c0[0])  # 小车误差修正
-                dist_y = 1.1 * radius * np.sin(np.pi - theta) + c0[1]
+                # dist_x = 1.1 * (radius * np.cos(np.pi - theta) + c0[0])  # 小车误差修正 
+                # dist_y = 1.1 * radius * np.sin(np.pi - theta) + c0[1]
                 # print('temp',temp)
                 # print('dist',dist_x,dist_y)
-                temp_pos = [dist_x - temp[0], dist_y - temp[1]]  # 质点一步要走的距离
+                # temp_pos = [dist_x - temp[0], dist_y - temp[1]]  # 质点一步要走的距离
                 # print('distance', temp_pos)
                 # 小车运动
                 # self.Car0.goto_car_xyz(temp_pos, self.logger0_attitude, self.dt)
@@ -169,28 +174,29 @@ class CDPR(gym.Env):
                 # # time.sleep(0.0005)
                 # self.Car2.goto_car_xyz(temp_pos, self.logger2_attitude, self.dt)
             '''==================================='''
-            # 无人机的机体坐标刚好和世界坐标反过来了
-            self.Drone1.goto_xyz(-self.dist_y + 0.87, self.dist_x + 1.5, 7.5)
-            self.Drone2.goto_xyz(-self.dist_y - 1.74, self.dist_x, 7.5)
-            self.Drone3.goto_xyz(-self.dist_y + 0.87, self.dist_x - 1.5, 7.5)
-            self.Drone4.goto_xyz(-self.dist_y + 2, self.dist_x, 7.5)
+            # 无人机的机体坐标刚好和世界坐标反过来了 # FIXME: 不是要x2吗？
+            self.Drone1.goto_xyz(-self.dist_y*2 + 0.87, self.dist_x *2+ 1.5, 8.0)
+            self.Drone2.goto_xyz(-self.dist_y *2- 1.74, self.dist_x*2,8.0)
+            self.Drone3.goto_xyz(-self.dist_y*2 + 0.87, self.dist_x*2 - 1.5,8.0)
+            self.Drone4.goto_xyz(-self.dist_y*2 + 2, self.dist_x*2, 8.0)
 
             '''######### 质点位置目标  ###########'''
             # ***********************************
             target = [self.dist_x, self.dist_y, self.dist_z]
             # print('payload_target', target)
-            pid = apmPID(target)
+            pid.set_target(target=target)
             # uav:1~4,ugv:1~3
-            # TODO:计算得到的绳子拉力大小应该有问题
+            # FIXME:计算得到的绳子拉力大小应该有问题
             cable_tensions = self.compute_cable_tensions(self.payload_gravity, self.drone_gravity, pid)
             ########################################################
             # drone--force
-            # TODO:这里不该再有cable_tension的非负限制
+            # FIXME:这里不该再有cable_tension的非负限制 FIXME:? 为什么
             for i in range(len(cable_tensions)):
                 if cable_tensions[i] < 0:
                     cable_tensions[i] = 0
             # cable_tensions = np.where(cable_tensions > 0, cable_tensions, 0)
 
+            # FIXME: 需要拉力限制吗，jacobian 不需要
             force_payload2drone1 = min(cable_tensions[0], 5)
             force_payload2drone2 = min(cable_tensions[1], 5)
             force_payload2drone3 = min(cable_tensions[2], 5)
@@ -200,17 +206,22 @@ class CDPR(gym.Env):
             force_logger1 = min(cable_tensions[5], 5)
             force_logger2 = min(cable_tensions[6], 5)
 
-            multiarray0.data = [force_logger0 * 1000 / hz, force_logger1 * 1000 / hz, force_logger2 * 1000 / hz,
-                                force_payload2drone1 * 1000 / hz, force_payload2drone2 * 1000 / hz,
-                                force_payload2drone3 * 1000 / hz, force_payload2drone4 * 1000 / hz]
+            # FIXME: 需不需要乘系数
+            if count_draw > 2:
+                hz = 1.0 / (time.time() - s)
+            coefficience = 1000 / hz
+            multiarray0.data = [force_logger0 * coefficience, force_logger1 * coefficience, force_logger2 * coefficience,
+                                force_payload2drone1 * coefficience, force_payload2drone2 * coefficience,
+                                force_payload2drone3 * coefficience, force_payload2drone4 * coefficience]
             # 无人机共用一个话题
             # print('pos', self.drone1_position[2])
+            s = time.time()
             if self.drone1_position[2] > 0 and self.drone2_position[2] > 0 and self.drone3_position[2] > 0 and \
                     self.drone4_position[2] > 0:
                 self.force_publisher0.publish(multiarray0)
 
             '''生成代价函数数据'''
-            self.generate_train_data()
+            # self.generate_train_data()
             '''-----------------------------------'''
             r.sleep()
             self.dt = time.time() - start
@@ -226,11 +237,11 @@ class CDPR(gym.Env):
                 self.plot_curve()
                 break
                 
-            hz = 1.0/(time.time()-start)
-        self.Drone1.set_mode('RTL')
-        self.Drone2.set_mode('RTL')
-        self.Drone3.set_mode('RTL')
-        self.Drone4.set_mode('RTL')
+            
+        # self.Drone1.set_mode('RTL')
+        # self.Drone2.set_mode('RTL')
+        # self.Drone3.set_mode('RTL')
+        # self.Drone4.set_mode('RTL')
 
         self.gazebo_reset.reset_Car_State([self.Car0, self.Car1, self.Car2])
         self.gazebo_reset.resetPayloadState()
@@ -277,35 +288,34 @@ class CDPR(gym.Env):
         # 末端执行器坐标系相对于基坐标系的位置
         rotation_center = np.array(self.payload_position)
 
-        for i in range(0, 7, 1):
-            vector = np.hstack([point_end_effector[i], 0])  # 将B点转换为四元数
+        # FIXME: 单一个质点不需要这些计算了
+        for i in range(7):
+            # vector = np.hstack([point_end_effector[i], 0])  # 将B点转换为四元数
             # 通过四元数的旋转变换求得旋转后B’的四元数位置（相对于末端执行器坐标系）
-            rotated_vector = self.Rot.rotated_vector(pose_0, vector)
+            # rotated_vector = self.Rot.rotated_vector(pose_0, vector)
             # 将B’的四元数位置变成3维位置并进行坐标补偿将它变成相对于基坐标系的位置
-            self.cable_one_side[i] = np.delete(rotated_vector, 3) + rotation_center
+            # self.cable_one_side[i] = np.delete(rotated_vector, 3) + rotation_center
+            self.cable_one_side[i] = rotation_center
 
+        
         # TODO: 雅喀比 --> 两个雅可比的绳子张力不一样
-        self.Jac = self.J.get_jacobian(self.points_base, point_end_effector, pose_0, rotation_center)
-        # cable_tensions = self.J.cable_force(self.points_base, point_end_effector, pose_0, rotation_center,
-        #                                     target_force_wrench)
-        # print('J1', self.Jac[0])
-        self.Jac, cable_tensions, force_wrench = jacobi(self.points_base, point_end_effector, pose_0, rotation_center,
-                                                        target_force_wrench)
+        # self.Jac, cable_tensions, force_wrench = jacobi(self.points_base, point_end_effector, pose_0, rotation_center,
+        #                                                 target_force_wrench)
         '''save data'''
-        self.wrench.append(target_force_wrench)
-        self.t.append(cable_tensions)
-        self.platform_pos.append(self.payload_position)
-        # print('J2', self.Jac[0])
-        # print('===========================')
-        # print(np.where(cable_tensions < -(1e-15)))
-        is_empty = np.where(cable_tensions < -1e-15)
-        # print(type(is_empty))  #tuple
-        is_empty = np.array(is_empty)
-        # print(is_empty)
-        if is_empty.size > 0:
-            self.count += 1
-            print('number of cable_tensions<0:', self.count)
-            print('cable_tensions', cable_tensions)
+        # self.wrench.append(target_force_wrench)
+        # self.t.append(cable_tensions)
+        # self.platform_pos.append(self.payload_position)
+        # # print('J2', self.Jac[0])
+        # # print('===========================')
+        # # print(np.where(cable_tensions < -(1e-15)))
+        # is_empty = np.where(cable_tensions < -1e-15)
+        # # print(type(is_empty))  #tuple
+        # is_empty = np.array(is_empty)
+        # # print(is_empty)
+        # if is_empty.size > 0:
+        #     self.count += 1
+        #     print('number of cable_tensions<0:', self.count)
+        #     print('cable_tensions', cable_tensions)
         #     cable_tensions = self.replay_buff.sample(1)
         # else:
         #     self.replay_buff.push(cable_tensions)
@@ -325,7 +335,11 @@ class CDPR(gym.Env):
         # # print(uav_dir0)
         args = (target_force_wrench[0:3],uav_dir0,uav_dir1,uav_dir2,uav_dir3,ugv_dir1,ugv_dir2,ugv_dir3)
         cable_tensions, _ = minimizeForce(args)
-
+        self.t.append(cable_tensions)
+        self.platform_pos.append(self.payload_position)
+        self.input.append(np.array(
+            [self.drone1_position, self.drone2_position, self.drone3_position, self.drone4_position]))  # FIXME: 在generate_train_data也有一个，用了那个就不用这个了
+        # print('cable_tensions', cable_tensions)
         return cable_tensions
 
     def force_direction(self, end_point, start_point):
@@ -394,42 +408,45 @@ class CDPR(gym.Env):
 
         cost_cable_length = self.value_function.cost_cable_length(self.cable_one_side, cables_other_side)
         cost = cost_feasible_points + cost_cable_interference  + cost_wrench
-        input_platform = np.array([self.payload_position, self.payload_attitude])
+        # input_platform = np.array([self.payload_position, self.payload_attitude]) # FIXME: 为什么还有attitude
+        input_platform = np.array([self.payload_position])
         # print('cost_cable_length', cost_cable_length)
         # print('cost_feasible_points', cost_feasible_points)
         # print('cost_cable_interference', cost_cable_interference)
         # input_ = self.points_base.flatten()  # 这边处理了那么神经网络拟合时就不需要处理
         input_ = np.array([self.drone1_position,self.drone2_position,self.drone3_position,self.drone4_position])
-        new_input = np.delete(input_, -1, axis=1)
-        self.input.append(new_input)
+        # new_input = np.delete(input_, -1, axis=1) # FIXME: 需要z轴坐标
+        self.input.append(input_)
         self.input_platform.append(input_platform)
         self.output.append(cost)
+
     def plot_curve(self):
-        plot_wrench = np.array(self.wrench).T
+        # plot_wrench = np.array(self.wrench).T
         plot_t = np.array(self.t).T
         plot_pos = np.array(self.platform_pos).T
-        plt.figure()
-        plt.subplot(321)
-        plt.plot(self.time_step, plot_wrench[0])
-        plt.legend(labels=['w1'], loc='best')
-        plt.subplot(322)
-        plt.plot(self.time_step, plot_wrench[1])
-        plt.legend(labels=['w2'], loc='best')
-        plt.subplot(323)
-        plt.plot(self.time_step, plot_wrench[2])
-        plt.ylim((-1, 3))
-        plt.legend(labels=['w3'], loc='best')
-        plt.subplot(324)
-        plt.plot(self.time_step, plot_wrench[3])
-        plt.legend(labels=['w4'], loc='best')
-        plt.subplot(325)
-        plt.plot(self.time_step, plot_wrench[4])
-        plt.legend(labels=['w5'], loc='best')
-        plt.subplot(326)
-        plt.plot(self.time_step, plot_wrench[5])
-        plt.legend(labels=['w6'], loc='best')
-        plt.savefig('../scripts/figure/wrench.png')
-        plt.suptitle('wrench')
+        plot_drone = np.array(self.input)
+        # plt.figure()
+        # plt.subplot(321)
+        # plt.plot(self.time_step, plot_wrench[0])
+        # plt.legend(labels=['w1'], loc='best')
+        # plt.subplot(322)
+        # plt.plot(self.time_step, plot_wrench[1])
+        # plt.legend(labels=['w2'], loc='best')
+        # plt.subplot(323)
+        # plt.plot(self.time_step, plot_wrench[2])
+        # plt.ylim((-1, 3))
+        # plt.legend(labels=['w3'], loc='best')
+        # plt.subplot(324)
+        # plt.plot(self.time_step, plot_wrench[3])
+        # plt.legend(labels=['w4'], loc='best')
+        # plt.subplot(325)
+        # plt.plot(self.time_step, plot_wrench[4])
+        # plt.legend(labels=['w5'], loc='best')
+        # plt.subplot(326)
+        # plt.plot(self.time_step, plot_wrench[5])
+        # plt.legend(labels=['w6'], loc='best')
+        # plt.savefig('../scripts/figure/wrench.png')
+        # plt.suptitle('wrench')
 
         plt.figure()
         plt.subplot(331)
@@ -475,11 +492,27 @@ class CDPR(gym.Env):
         plt.legend(labels=['z'], loc='best')
         plt.savefig('../scripts/figure/platform_pos.png')
         plt.suptitle('platform_pos')
+        plt.grid()
+
+        fig,ax = plt.subplots(3,1)
+        # drones_label = ['']
+        print(plot_drone[:, 0, 0])
+        print(np.shape(plot_drone[:, 0, 0]))
+        for i in range(4):
+            for j in range(3):
+                
+                ax[j].plot(self.time_step,plot_drone[:,i,j], label='drone_{}'.format(i+1))
+        posi_titles = ['x','y','z']
+        for i in range(3):
+            ax[i].legend()
+            ax[i].set_title(posi_titles[i])
+            ax[i].grid()
+        
         plt.show()
 
 
 class apmPID:
-    def __init__(self, target):
+    def __init__(self, target = np.array([0,0,0])):
         # position
         x_p, x_i, x_d = 0.1, 0, 0.05
         y_p, y_i, y_d = 0.1, 0, 0.05
@@ -487,7 +520,7 @@ class apmPID:
 
         # 倍数
         x, y, z = 2.5, 2.5, 1.5
-        p = 1.0
+        p = 1
         self.control_x = PID(np.asarray([x_p, x_i, x_d]) * x * p, target[0], upper=100,
                              lower=-100)  # control position x
         self.control_y = PID(np.asarray([y_p, y_i, y_d]) * y * p, target[1], upper=100,
@@ -505,6 +538,11 @@ class apmPID:
         u3 = self.control_z.cal_output(state[2])
         list = [u1, u2, u3]
         return list
+    
+    def set_target(self,target):
+        self.control_x.set_target(target=target[0])
+        self.control_y.set_target(target=target[1])
+        self.control_z.set_target(target=target[2])
 
 
 if __name__ == "__main__":

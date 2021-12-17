@@ -22,7 +22,7 @@ def SQPfun(args):
 
     def fun(x):
         x = np.array(x)
-        x_uav = np.insert(x, [2, 4, 6, 8], [7.5, 7.5, 7.5, 7.5])
+        x_uav = np.insert(x, [2, 4, 6, 8], [8.0,8.0,8.0,8.0])
         cables_other_side = np.concatenate((x_uav, cable_oth_side))
         cables_other_side = np.reshape(cables_other_side, (7, 3))
         # print(np.shape(cables_other_side))  #21
@@ -31,7 +31,7 @@ def SQPfun(args):
             cables_one_side, cables_other_side, d_min, mu_d)
         # FIXME:RuntimeWarning: overflow encountered in exp
         cost3 = cost_feasible_points(
-            cables_one_side, cables_other_side, target_length_list, mu_a)
+            cables_other_side, mu_a)
         # # cost3 = 0
         # b = cables_one_side - rotation_center
         # U = cables_other_side - cables_one_side
@@ -51,12 +51,12 @@ def SQPfun(args):
         # d2, u_null2 = AW(np.array(b_x_U).T, m, t_min, t_max)
         # r_A2 = r_AW(d2, u_null2)
         # cost4 = cost_wrench_function([mu_t * r_A1, mu_r * r_A2])
-        r_r = r_r_AW(cables_one_side, cables_other_side, rotation_center, t_min,t_max,mu_r)
+        # r_r = r_r_AW(cables_one_side, cables_other_side, rotation_center, t_min,t_max,mu_r)
         r_t = r_t_AW(cables_one_side, cables_other_side, t_min,t_max,mu_t,m)
-        cost4 = r_r + r_t
-        bool_judge = judge_tensions(cables_other_side, point_end_effector,pose_0,rotation_center)
-        if not bool_judge:
-            cost4 = 0
+        cost4 =  r_t
+        # bool_judge = judge_tensions(cables_other_side, point_end_effector,pose_0,rotation_center)
+        # if not bool_judge:
+        #     cost4 = 0
         return cost4 + cost3 + cost2
 
     return fun
@@ -76,7 +76,8 @@ def minimize_cost(allArgs):
     Args = [cables_one_side, cable_oth_side, m, d_min, mu_l, mu_t, mu_r, mu_d, mu_a,
             rotation_center, target_length_list, t_min, t_max, point_end_effector, pose_0]
     x0 = np.asarray(uav_pos)
-    res = minimize(SQPfun(Args), x0, method='SLSQP', constraints=cons, options={'disp': True},tol=8)  # tol=8也是迭代次数为1 , options={'disp': True, 'maxiter': 1}
+    # tol=8也是迭代次数为1 , options={'disp': True, 'maxiter': 1}
+    res = minimize(SQPfun(Args), x0, method='SLSQP', constraints=cons, options={'disp': True}, tol=8)
     v = res.x  # 返回最小化后的变量
     result = res.fun  # 返回最小化后的结果
     print('*******************')
@@ -94,18 +95,20 @@ if __name__ == "__main__":
     s = time.time()
     d1 = np.linalg.norm([0, -3, 4.5])
     d2 = np.linalg.norm([5, 5, 3])
-    cable_one_side = np.array([[0, 0.29, 4.25],
+    cable_one_side = np.array([[0, 0, 4.25],
                                    [-0.25, -0.145, 4.25],
                                    [0.25, -0.145, 4.25],
                                    [0, 0, 4.25],
-                                   [0, 0.29, 3.75],
+                                   [0, 0, 3.75],
                                    [-0.25, -0.145, 3.75],
                                    [0.25, -0.145, 3.75]])
+    cable_one_side =np.array( [[0.0,0.0,4.0] for _ in range(7)])
+    print(cable_one_side)
     x_ugv = np.array([2.5, 1.45, 0, -2.5, 1.45, 0, 0, -2.9, 0])  # 9
     point_end_effector = np.array(
-        [np.array([0.0, 0.29, 0.25]), np.array([-0.25, -0.145, 0.25]), np.array([0.25, -0.145, 0.25]),
-        np.array([0.0, 0.0, 0.25]),
-        np.array([0.0, 0.29, -0.25]), np.array([-0.25, -0.145, -0.25]), np.array([0.25, -0.145, -0.25])])
+        [np.array([0.0, 0, 0.5]), np.array([-0, -0, 0.5]), np.array([0, -0.5, 0]),
+        np.array([0.0, 0.0, 0.5]),
+        np.array([0.0, 0.5, -0]), np.array([-0, -0.5, -0]), np.array([0, -0.5, 0.0])])
     uav_pos = np.array([-2.5, 1.45,0, -2.9,2.5, 1.45,0, 0])
     pose_0 = [0, 0, 0, 1]
     rotation_center = [0, 0, 3]

@@ -41,6 +41,7 @@ class DataPrefetcher():
     TODO: 数据预处理，可能存在显存溢出的问题，见https://github.com/NVIDIA/apex/issues/439
 
     '''
+
     def __init__(self, loader, device):
         self.loader = iter(loader)
         self.device = device
@@ -59,7 +60,7 @@ class DataPrefetcher():
             return
         # with torch.cuda.stream(self.stream):
         #     for k in self.batch:
-        #         
+        #
         #         if k != 'meta':
         #             self.batch[k] = self.batch[k].to(device=self.device, non_blocking=True)
 
@@ -74,7 +75,7 @@ class DataPrefetcher():
         batch = self.batch
         self.preload()
         return batch
-    
+
     def reset(self, loader):
         '''
         TODO: 重新加载数据集，在一个episode结束时使用，用于下一个episode
@@ -85,7 +86,7 @@ class DataPrefetcher():
 
 # device = "cpu"
 class Net(nn.Module):
-    def __init__(self, n_input=42, n_hidden1=32, n_hidden2=32,n_hidden3=16, n_output=1):
+    def __init__(self, n_input=42, n_hidden1=32, n_hidden2=32, n_hidden3=16, n_output=1):
         super(Net, self).__init__()
         self.nn = nn.Sequential(
             nn.Linear(n_input, n_hidden1),
@@ -130,7 +131,7 @@ def env_generate():
         train_data['output_value'] = np.squeeze(train_data['output_value'])
         # print(np.shape(train_data['output_value']))
         train_y = np.array(train_data['output_value']
-                        [500:len(train_data['input_pos'])])
+                           [500:len(train_data['input_pos'])])
         train_y = np.reshape(train_y, (len(train_y), 1))
     print(np.shape(train_x))
     print(np.shape(train_y))
@@ -171,7 +172,8 @@ def random_generate(number, is_test=False):
     # x_uav = np.array(x_uav_).T
 
     # x_ugv = np.array([2.5, 1.45, 0, -2.5, 1.45, 0, 0, -2.9, 0])  # 9
-    param_var = np.random.random((number, 6)) * 4-2  # platform pose x,y,z,r,p,y
+    param_var = np.random.random((number, 6)) * \
+        4-2  # platform pose x,y,z,r,p,y
     # param_var_x = np.arange(start=-0.1, stop=0.5, step=0.001)
     # param_var_y = np.arange(start=-0.3, stop=0.3, step=0.001)
     # param_var_z = np.arange(start=3.5, stop=4.5, step=0.001)
@@ -213,14 +215,11 @@ def random_generate(number, is_test=False):
             for i in range(np.shape(x_uav)[0]):
                 if i % 10 == 0:
                     print(i)
-                x_uav_temp = np.insert(x_uav[i], [2, 4, 6, 8], [
-                                       7.5, 7.5, 7.5, 7.5])  # 补足uav位置信息x,y,z
+                x_uav_temp = np.insert(x_uav[i], [2, 4, 6, 8], [8,8,8,8])  # 补足uav位置信息x,y,z
                 cable_other_side = np.concatenate((x_uav_temp, x_ugv))
-                cable_other_side = np.reshape(
-                    cable_other_side, newshape=(7, 3))  # agent pos
+                cable_other_side = np.reshape( cable_other_side, newshape=(7, 3))  # agent pos
                 rot_center = np.array(param_var[i, 0:3])  # 末端执行器坐标系相对于基坐标系的位置
-                pose_0 = tf.transformations.quaternion_from_euler(
-                    *param_var[i, 3:6])  # 四元数
+                pose_0 = tf.transformations.quaternion_from_euler(*param_var[i, 3:6])  # 四元数
                 cable_one_side = np.empty((7, 3))  # 7个固定点，每个点是 3惟的
                 for j in range(0, 7, 1):
                     vector = np.hstack([point_end_effector[j], 0])  # 将B点转换为四元数
@@ -232,9 +231,12 @@ def random_generate(number, is_test=False):
                     # 将B’的四元数位置变成3维位置并进行坐标补偿将它变成相对于基坐标系的位置
                     cable_one_side[j] = np.delete(
                         rotated_vector, 3) + rot_center
-                Value.set_jacobian_param(point_end_effector,pose_0,rot_center)
-                v1 = Value.cost_feasible_points(cable_one_side, cable_other_side, cable_length)
-                v2 = Value.cost_cable_interference(cable_one_side, cable_other_side)
+                Value.set_jacobian_param(
+                    point_end_effector, pose_0, rot_center)
+                v1 = Value.cost_feasible_points(
+                    cable_one_side, cable_other_side, cable_length)
+                v2 = Value.cost_cable_interference(
+                    cable_one_side, cable_other_side)
                 # v3 = Value.cost_cable_length(cable_one_side, cable_other_side)
                 r1 = Value.r_t_AW(cable_one_side, cable_other_side)
                 r2 = Value.r_r_AW(cable_one_side, cable_other_side, rot_center)
@@ -260,7 +262,7 @@ def random_generate(number, is_test=False):
         for i in range(number):
             print(i)
             x_uav_temp = np.insert(x_uav[i], [2, 4, 6, 8], [
-                                   7.5,7.5,7.5,7.5])  # 补足uav位置信息x,y,z
+                                   7.5, 7.5, 7.5, 7.5])  # 补足uav位置信息x,y,z
             # print(x_ugv[i])
             cable_other_side = np.concatenate((x_uav_temp, x_ugv))
             cable_other_side = np.reshape(
@@ -279,8 +281,9 @@ def random_generate(number, is_test=False):
                                                                                 pose_0)))
                 # 将B’的四元数位置变成3维位置并进行坐标补偿将它变成相对于基坐标系的位置
                 cable_one_side[j] = np.delete(rotated_vector, 3) + rot_center
-            Value.set_jacobian_param(point_end_effector,pose_0,rot_center)
-            v1 = Value.cost_feasible_points(cable_one_side, cable_other_side, cable_length)
+            Value.set_jacobian_param(point_end_effector, pose_0, rot_center)
+            v1 = Value.cost_feasible_points(
+                cable_one_side, cable_other_side, cable_length)
             v2 = Value.cost_cable_interference(
                 cable_one_side, cable_other_side)
             # v3 = Value.cost_cable_length(cable_one_side, cable_other_side)
@@ -296,8 +299,8 @@ def random_generate(number, is_test=False):
         train_y = np.array(train_y)
 
         # train_y = train_y.reshape(number, 1)
-        print('x: ',train_x)
-        print('y: ',train_y)
+        print('x: ', train_x)
+        print('y: ', train_y)
         print(np.shape(train_y))
         print(np.shape(train_x))
 
@@ -334,7 +337,7 @@ if __name__ == '__main__':
         # prefetcher = DataPrefetcher(loader=loader, device=device)
         '''++++++++++++++++++++++++++++++++++++++++++++++++++++++'''
         '''开始train 部分'''
-        net = Net(14, 512,512,256, 1).to(device)
+        net = Net(14, 512, 512, 256, 1).to(device)
         # optimizer 优化
         # if os.path.exists('model/model_14dim/torch_fit_value9.pt'):
         #     print('load model!!!')
@@ -342,7 +345,7 @@ if __name__ == '__main__':
         #     net.load_state_dict(torch.load(
         #         'model/model_14dim/torch_fit_value9.pt'))
         lr = 3e-6
-        optimizer = torch.optim.SGD(net.parameters(), lr=lr,weight_decay=0.01)
+        optimizer = torch.optim.SGD(net.parameters(), lr=lr, weight_decay=0.01)
         # net = nn.DataParallel(net)
         # 每跑50000个step就把学习率乘以0.9
         # scheduler = ReduceLROnPlateau(optimizer, 'min',patience=100,factor=0.5)
@@ -359,7 +362,7 @@ if __name__ == '__main__':
             ##############################
             # batch = prefetcher.next()
             # while batch is not None:
-            #     train_x, train_y = batchpython 
+            #     train_x, train_y = batchpython
             #     pridect_y = net(train_x)  # 喂入训练数据 得到预测的y值
             #     optimizer.zero_grad()  # 为下一次训练清除上一步残余更新参数
             #     loss = loss_funaction(pridect_y, train_y)  # 计算损失
@@ -393,9 +396,10 @@ if __name__ == '__main__':
             #     print(batch_idx, loss.item())
             # pridect_y = net(Variable(train_x,requires_grad = False))
 
-            if (i+1)%d_step_size == 0:
+            if (i+1) % d_step_size == 0:
                 lr *= 0.9
-                print('\n\n===================\nlearning rate: {}==============\n\n'.format(lr))
+                print(
+                    '\n\n===================\nlearning rate: {}==============\n\n'.format(lr))
 
             if i % 100 == 0:
                 end = time.time()
@@ -404,7 +408,8 @@ if __name__ == '__main__':
                 # plt.plot(pridect_y.data.cpu().numpy(), 'r-')
                 # plt.pause(0.3)
                 # print("已训练{}步 | loss：{} | y_data:{} | predict_y:{}.".format(i, loss, y_data.item().sum(), pridect_y.item().sum()))
-                print("已训练{}步 | loss：{} \t take {}s .".format(i, loss,end - start))
+                print("已训练{}步 | loss：{} \t take {}s .".format(
+                    i, loss, end - start))
                 start = end
                 torch.save(
                     net.state_dict(), 'model/model_14dim/torch_fit_value9.pt')
@@ -414,9 +419,9 @@ if __name__ == '__main__':
             net.state_dict(), 'save/model/model_14dim/torch_fit_value9.pt')
     else:
         '''#####################随机生成测试数据########################'''
-        net = Net(14, 512,512,256, 1).to(device)
+        net = Net(14, 512, 512, 256, 1).to(device)
         net.load_state_dict(torch.load(
-                'save/model/model_14dim/2021-11-10-15-58-random.pt'))
+            'save/model/model_14dim/2021-11-10-15-58-random.pt'))
         plot_y = []
         plot_y_ = []
         plot_loss = []
@@ -430,18 +435,20 @@ if __name__ == '__main__':
         number = 128
         for i in range(0, number):
             start_ = time.time()
-            
-            x_data = torch.tensor(test_x[i], device=device, dtype=torch.float32, requires_grad=True)
-            y_data = torch.tensor(test_y[i], device=device, dtype=torch.float32)
+
+            x_data = torch.tensor(
+                test_x[i], device=device, dtype=torch.float32, requires_grad=True)
+            y_data = torch.tensor(
+                test_y[i], device=device, dtype=torch.float32)
             y_ = net(x_data)
             # x_data.grad.zero_()
             y_.backward()  # 反向传播计算梯度
-            
+
             grads_1 = x_data.grad
             related_loss = (y_.item() - test_y[i])/y_.item()
             rloss.append(related_loss)
             print('+++++++++++++++')
-            print('x: ',x_data)
+            print('x: ', x_data)
             print('target', test_y[i])
             print('approximate', y_.item())
             plot_y.append(test_y[i])
@@ -454,7 +461,7 @@ if __name__ == '__main__':
             plot_loss.append(F.mse_loss(y_data, y_).item())
 
             end_ = time.time()
-            print('time: ',end_ - start_)
+            print('time: ', end_ - start_)
             print('===================')
         mean_loss = np.sum(plot_loss[0:50])/50
 
