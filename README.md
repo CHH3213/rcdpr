@@ -25,7 +25,7 @@
   cmake ../
   make
   ```
-正常情况下将编译成功.
+  正常情况下将编译成功.
 
 - 将`rcdpr/worlds/plugins/build`的完整路径添加到系统环境变量中。
 
@@ -74,20 +74,16 @@
 
 
 ## launch文件夹说明
-- `apm.launch`:单架无人机下的mavros开启
-- `multi-apm.launch`:多架无人机下的mavros开启（默认开启三架）
-- `multi_drone.launch`：仿真环境launch文件
+- `rcdpr-apm.launch `:mavros开启
+- `rcdpr_env.launch`：仿真环境launch文件
 
 ## bash文件夹说明
 - `reset_params.sh`和`rc_multi_drone.sh`是修改`rc/override`的，在这里未用到。
-- `multi-ardupilot.sh`：开启软件在环仿真（SITL）
-- `start_multi_drone.sh`：是整个项目运行的脚本
+- `rcdpr.sh`：是整个项目运行的脚本
 ## 运行
 
-在`scripts`文件夹下，主要的main函数有`experi_2dBA`,`experi_2dSA`,`experi_3drone`分别表示2架无人机大间距，两架无人机无间距，两架无人机小间距，3架无人机。需要分别打开对应的环境才可以运行(在`multi_drone.launch`文件中切换)。
+在`scripts`文件夹下，主要的main函数有`online_phase_network.py`,`online_phase_optimizer.py`
 - 首先运行`cmd_force.py`
 - 而后运行相应的main函数：
-  - `experi_2dBA.py`:2架无人机大间距下的实验主程序
-  - `experi_2dSA.py`:2架无人机小间距下的实验主程序
-  - `experi_3drone.py`:3架无人机下的实验主程序
+  - `python online_phase_network.py`
 
