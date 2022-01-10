@@ -5,50 +5,50 @@
 ## Environments
 - 整个环境是在`apm`飞控下运行成功的。所以在运行本环境之前，需要安装好mavros和apm，[Intelligent Quads Tutorials](https://github.com/Intelligent-Quads/iq_tutorials)
 - 安装好后，将本功能包从仓库上git clone下来：
-```bash
-git clone https://github.com/CHH3213/cdpr_uav_ddrive_endition2.git
-```
+  ```bash
+  git clone https://github.com/CHH3213/rcdpr.git
+  ```
 
 
 - 将整个`rcdpr`功能包放到ros工作空间中，并编译和source
 
-  ```bash
-  cd ~/ros_ws/
-  catkin_make
-  source devel/setup.sh
+    ```bash
+    cd ~/ros_ws/
+    catkin_make
+    source devel/setup.sh
   ```
 - 编译插件
 
-进入`rcdpr/worlds/plugins/build`文件夹下，将里面所有文件删除，并在终端依次执行:
+  进入`rcdpr/worlds/plugins/build`文件夹下，将里面所有文件删除，并在终端依次执行:
 
-```bash
-cmake ../
-make
-```
+  ```bash
+  cmake ../
+  make
+  ```
 正常情况下将编译成功.
 
 - 将`rcdpr/worlds/plugins/build`的完整路径添加到系统环境变量中。
 
    首先打开系统环境变量
 
-```bash
-gedit ~/.bashrc
-```
+  ```bash
+  gedit ~/.bashrc
+  ```
 
 ​		  在文件末尾添加以下两行：
 
-```bash
-export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:~/catkin_ws/src/rcdpr/worlds/plugins/build
-export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:~/catkin_ws/src/rcdpr/worlds/plugins/build
-```
+  ```bash
+  export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:~/ros_ws/src/rcdpr/worlds/plugins/build
+  export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:~/ros_ws/src/rcdpr/worlds/plugins/build
+  ```
 
 ​			路径千万别写错，否则力的插件加载会失败。
 
-添加完后关闭bashrc，并source：
+  添加完后关闭bashrc，并source：
 
-```bash
-source ~/.bashrc
-```
+  ```bash
+  source ~/.bashrc
+  ```
 - 进入bash文件夹，给bash脚本添加权限
 
   ```bash
@@ -63,9 +63,7 @@ source ~/.bashrc
   ./start_multi_drone.sh
   ```
 
-- 打开环境，正常打开后应该会有如下界面：
 
-  <img src="./worlds/fig/env3.png" alt="world" style="zoom:150%;" />
 
 - 如果在运行bash脚本后仿真环境无法正常工作，则依次打开不同终端手动运行：
   ```bash
