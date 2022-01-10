@@ -29,20 +29,19 @@
 
 - 将`rcdpr/worlds/plugins/build`的完整路径添加到系统环境变量中。
 
-   首先打开系统环境变量
+     首先打开系统环境变量
 
-  ```bash
-  gedit ~/.bashrc
-  ```
+    ```bash
+    gedit ~/.bashrc
+    ```
 
-​		  在文件末尾添加以下两行：
+  在文件末尾添加以下两行：
 
   ```bash
   export GAZEBO_PLUGIN_PATH=${GAZEBO_PLUGIN_PATH}:~/ros_ws/src/rcdpr/worlds/plugins/build
   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:~/ros_ws/src/rcdpr/worlds/plugins/build
   ```
-
-​			路径千万别写错，否则力的插件加载会失败。
+  路径千万别写错，否则力的插件加载会失败。
 
   添加完后关闭bashrc，并source：
 
