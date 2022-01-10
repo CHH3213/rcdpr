@@ -51,25 +51,16 @@
 - 进入bash文件夹，给bash脚本添加权限
 
   ```bash
-  chmod a+x start_multi_drone.sh
-  chmod a+x ardupilot.sh
+  chmod a+x rcdpr.sh
   ```
 
 
 - 运行bash脚本，正常可以打开环境：
 
   ```
-  ./start_multi_drone.sh
+  ./rcdpr.sh
   ```
 
-
-
-- 如果在运行bash脚本后仿真环境无法正常工作，则依次打开不同终端手动运行：
-  ```bash
-  roslaunch cdpr_uav_ddrive multi_drone.launch
-  ./start_multi_drone.sh
-  roslaunch cdpr_uav_ddrive multi-apm.launch
-  ```
 
 
 ## launch文件夹说明
