@@ -54,6 +54,7 @@
   chmod a+x rcdpr.sh
   ```
 
+- 进入`worlds/rcdpr.world`文件，修改每个模型加载的uri路径。
 
 - 运行bash脚本，正常可以打开环境：
 
