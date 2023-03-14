@@ -1,6 +1,9 @@
-# rcdpr
+## README
 
-> 2021/12/15
+Hi there! This is the source code of the paper “Real-Time Reconfiguration Planning for the Dynamic Control of Reconfigurable Cable-Driven Parallel Robots”.
+
+
+Refer Link：https://asmedigitalcollection.asme.org/mechanismsrobotics/article-abstract/14/6/060913/1145533/Real-Time-Reconfiguration-Planning-for-the-Dynamic?redirectedFrom=fulltext
 
 ## Environments
 - 整个环境是在`apm`飞控下运行成功的。所以在运行本环境之前，需要安装好mavros和apm，[Intelligent Quads Tutorials](https://github.com/Intelligent-Quads/iq_tutorials)
